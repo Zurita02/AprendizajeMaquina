@@ -31,23 +31,38 @@ X = df_imputed.drop(['Disease'], axis=1)
 y = df_imputed['Disease']
 
 
-# Dividir los datos en conjunto de entrenamiento y prueba
+# Dividir los datos en conjunto de entrenamiento, validación y prueba
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
 
 # Árbol de decisón
 # Uso entropía para mejorar la calidad de cada nodo y así no tener un árbol de mucha profundidad, esto para evitar el overfitting
 arbol = DecisionTreeClassifier(criterion='entropy',max_depth=6)
 arbol.fit(X_train, y_train)
-y_pred = arbol.predict(X_test)
+y_pred_val = arbol.predict(X_val)
 
 
 # Evalúo el rendimiento del modelo con accuracy, matriz de confusión y reporte de clasificación
-accuracy = accuracy_score(y_test, y_pred)
-print(f'Precisión del modelo de prueba: {accuracy}')
+# Uso mis datos de validación
+accuracy = accuracy_score(y_val, y_pred_val)
+print(f'Precisión del modelo (Validación): {accuracy}')
 
-print("Matriz de confusión:")
+print("Matriz de confusión (Validación):")
+print(confusion_matrix(y_val, y_pred_val))
+
+print("Informe de clasificación (Validación):")
+print(classification_report(y_val, y_pred_val))
+
+
+# Uso mis datos de prueba
+y_pred = arbol.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Precisión del modelo (Prueba): {accuracy}')
+
+print("Matriz de confusión (Prueba):")
 print(confusion_matrix(y_test, y_pred))
 
-print("Informe de clasificación:")
+print("Informe de clasificación (Prueba):")
 print(classification_report(y_test, y_pred))
